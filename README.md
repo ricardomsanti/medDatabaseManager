@@ -1,0 +1,2 @@
+# medDatabaseManager
+This is a system written to register, delete, update and select medication using Python and MongoDB. The whole idea is that, once the user logs some basic info as well as every new income, the Database Manager will automatcally remind him when it's time to perform a new input, so the count he doesn't run ou of storage. Also, I'm using some features from Pandas Lib in to create viewing possibilities of the whole database.

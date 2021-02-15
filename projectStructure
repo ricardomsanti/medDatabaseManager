@@ -1,0 +1,18 @@
+
+
+
+MainMeds
+    #Responsible for managing the program's main flow, wich basically means
+    #starting, dealing with the user demands and finishing the program.
+Med
+    #Created to gather all attributes of an certain entity in one place, in order
+    #to set a cleaner and more effective flow when the database and calculation
+    #operation are triggered
+MedDatabase
+    #Since both the database and collections were created by terminal, the main
+    #purpose of this class it to perform queries and updates
+MedOps
+    #Concentrates all the calculation methods necessary so the other classes
+    #present less verbosity as possible
+test_Med
+    #Test the other classes methods as necessary

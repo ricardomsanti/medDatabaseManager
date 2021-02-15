@@ -1,9 +1,9 @@
 import unittest
-from med import Med 
+from Med import Med
 
 
 class TestMed(unittest.TestCase):
-    m = Med( name="testMed",dosePerDay=2, cpPerDay=1,cpBox=30, boxPrice=35.53, cpNum=180)
+    m = Med(name="testMed", dosePerDay=2, cpPerDay=1, cpPerBox=30, pricePerBox=35.53, cpPerBuy=180)
     
     def test_numBox(self):
         """

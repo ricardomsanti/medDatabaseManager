@@ -1,3 +1,4 @@
+import bson
 from pymongo import MongoClient
 
 
@@ -11,6 +12,7 @@ class MedDatabase:
         self.db = db
         self.col = col
 
+
     def logInsert(self, log):
         try:
             self.col.insert_one(log)
@@ -23,13 +25,16 @@ class MedDatabase:
     #still neet to be able to execise QUERYNG operators and EXTRACTING values from BSON to Python Objects
 
     #once all that is done, it's only a matter of formating the calculation, and displaying results using pandas
-    def loadLogs(self):
-        loadLogs = {}
-        loadList = []
 
-        for x in self.col.find():
-            loadList.append(x)
-            print(x)
+    def loadLogs(self):
+        singleLog = {}
+        loadLogs = []
+        posts = self.col.find()
+        for post in posts:
+            singleLog = dict(post)
+            loadLogs.append(singleLog)
+        return loadLogs
+
 
 
 
@@ -39,3 +44,5 @@ client = MongoClient("localhost", 27017)
 db = client.get_database("MEDS")
 col = db.get_collection("medLog")
 MedDatabase(client=client, db=db, col=col).loadLogs()
+
+

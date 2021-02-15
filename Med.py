@@ -25,16 +25,16 @@ class Med:
     
     ## Intake measuring variables
     #---------------------------------------
-    dosePerDay =1.0
-    cpPerDay = 1
-    cpPerBox =1.0
+    dosePerDay =None
+    cpPerDay = None
+    cpPerBox =None
     boxPerDay = cpPerBox / cpPerDay
-    pricePerBox =1.0
+    pricePerBox =None
     pricePerDay = boxPerDay * pricePerBox    
         
     # Size measuring variables
     #----------------------------------------------
-    cpIcome =1.0
+    cpIcome =None
     boxIncome = cpIcome / cpPerBox
     
     ##Althoug it's possibile to use cp(pills), dose(mg) and boxes(box)
@@ -49,36 +49,22 @@ class Med:
     # --------------------------------------------------------------------------------
         
 
-    """def lastStorage(self):
-        #storage methd
-        t2 = dt.now()
-        t1 = lastLogDate
-        s1 = lastStorage
-        s2 = self.boxPerDay * (t2-t1)+s1
 
-    def nextBuyDate(self):
-        #storage methd
-        
-        timeOne =  self.boxIncome + lastStorage()/ self.boxPerDay
-        delta = td(days=timeOne)
-        buyDate = dt.now() + delta
-        return buyDate
-"""
 
     def log_time(self):
         log_time = {"now" : dt.now(),
-                        "year": dt.now().year,
-                        "month": dt.now().month,
-                        "day": dt.now().day,
-                        "hour": dt.now().hour,
-                        "minute": dt.now().minute,
-                        "second": dt.now().second}
+                    "year": dt.now().year,
+                    "month": dt.now().month,
+                    "day": dt.now().day,
+                    "hour": dt.now().hour,
+                    "minute": dt.now().minute,
+                    "second": dt.now().second}
     
     def log_intake(self):    
         log_intake = {"dosePerDay": self.dosePerDay,
                     "cpPerDay": self.cpPerDay,
                     "boxPerDay" : self.boxPerDay,
-                    "pricePerDay": boxPerDay * self.pricePerBox}                                                                 
+                    "pricePerDay": self.boxPerDay * self.pricePerBox}
         return log_intake
         
     def log_income(self):
@@ -90,58 +76,58 @@ class Med:
         
     
     # database Methods
-    # ----------------------------------------------------------
-    def logInsert_Med(self):
+    #----------------------------------------------------------------------
+    def newLog(self):
         log_med = {"name": self.name,
                    "time": self.log_time(), 
                    "log_intake": self.log_intake(),
                     "log_income": self.log_income()}
         self.col.insert_one(log_med)
 
-
-    def loadLogs(self, selectMed=None, selectLastLogs=None):
-        selectLogList = []
-        singleLog = {}
+    def loadLogsFull(self):
         loadLogs = []
         posts = self.col.find()
-        nameList = []
-        #return loadLogs
-        if selectMed is None:
-            if selectLastLogs is None:
-                for post in posts:
-                    singleLog = dict(post)
-                    loadLogs.append(singleLog)        
-                    selectLogList = loadLogs
-            elif selectLastLogs is not None:
-                for post in posts:
-                    singleLog = dict(post)
-                    loadLogs.append(singleLog)
-                selectLogList = [x for x in loadLogs[(len(loadLogs) - int(selectLastLogs)): len(loadLogs)]]
-        elif selectMed == "y":
-            if selectLastLogs is None:
-                for post in posts:
-                    singleLog = dict(post)
-                    loadLogs.append(singleLog)        
-                    nameList.append(singleLog["name"])
-                nameSeries = pd.Series(nameList, index=["med1", "med2", "med3", "med4", "med5", "med6"])
-                print(nameSeries)
-                name = input("Please choose a medication from the list \n")
-                
-                #-----------------------------------------------------having trouble performing this selection
-                #all the other ones are working properly, may be i should split the function in two
-                new_posts = self.col.find({"name":str(name)})
-                for post in new_posts:
-                    singleLog = dict(post)
-                    loadLogs.append(singleLog)
-                selectLogList = loadLogs
-            elif selectLastLogs is not None:
-                for post in posts:
-                    singleLog = dict(post)
-                    loadLogs.append(singleLog)
-                selectLogList = [x for x in loadLogs[(len(loadLogs) - selectLastLogs): len(loadLogs)]]
+        for post in posts:
+            loadLogs.append(dict(post))
+        return loadLogs
 
+    def loadNameList(self):
+        # queries the database returning only medication names
+        logs = self.loadLogsFull()
+        nameList = [post["name"] for post in logs]
+        return nameList
+
+    def loadLogsMed(self, med):
+        #queries the database returning only the logs which math a certain name
+        logs = self.loadLogsFull()
+        logsMed = [post for post in logs if post["name"] == med]
+        return logsMed
+
+    def loadLastLogs(self, med):
+        # queries the database returning only the last logged log
+        logs = self.loadLogsMed(med=med)
+        selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
         return selectLogList
 
+
+
+    #calculation methods
+    #----------------------------------------------------------------------
+    def StorageToday(self, med, income=None):
+        # based on the data from the last log, calculates the actual storage
+        lasLog = self.loadLastLogs(med=med)
+        log_time = lasLog["log_time"]
+        t2 = dt.now()
+        t1 = log_time["now"]
+        s2 = self.boxPerDay * (t2 - t1)
+        return s2 + income
+
+    def nextBuyDate(self, med=None, income=None):
+        # based on the data from the actual log, calculates the date of the next income
+        t1 = self.boxIncome + self.StorageToday(med=med, income=income) / self.boxPerDay
+        delta = td(days=t1)
+        buyDate = dt.now() + delta
+        return buyDate
 
     #     methods for a future query
     # --------------------------------------------------------------------------------
@@ -158,3 +144,10 @@ client = MongoClient("localhost", 27017)
 db = client.get_database("MEDS")
 col = db.get_collection("medLog")
 md = Med(client=client, db=db, col=col)
+print(md.loadLogsFull())
+print()
+print()
+print(md.loadLastLogs(num = 2))
+print()
+print()
+print(md.loadLogsMed())

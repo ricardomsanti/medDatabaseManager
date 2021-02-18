@@ -2,47 +2,46 @@ import bson
 from pymongo import MongoClient
 
 
-# --------------------------------------missing implementing mongo db methods
+# Resposible for instatiating the database, as well as loggin ant retrieving data from it
 
 
 class MedDatabase:
 
-    def __init__(self, client, db, col):
-        self.client = client
-        self.db = db
-        self.col = col
+    def __init__(self):
+        self.client = MongoClient("localhost", 27017)
+        self.db = self.client.get_database("MEDS")
+        self.col = self.db.get_collection("medLog")
 
+    def newLog(self, log):
+        self.col.insert_one(log)
+        print("Log operation succesfully performed")
 
-    def logInsert(self, log):
-        try:
-            self.col.insert_one(log)
-        except:
-            print("Sorry, it was not possible to log this data to medLogs collection")
-
-
-    #working database method, altough it needs some fixex about instantiating or no the MongoClient on the def __init__
-
-    #still neet to be able to execise QUERYNG operators and EXTRACTING values from BSON to Python Objects
-
-    #once all that is done, it's only a matter of formating the calculation, and displaying results using pandas
-
-    def loadLogs(self):
-        singleLog = {}
+    def loadLogsFull(self):
         loadLogs = []
         posts = self.col.find()
         for post in posts:
-            singleLog = dict(post)
-            loadLogs.append(singleLog)
+            loadLogs.append(dict(post))
         return loadLogs
 
+    def loadNameList(self):
+        # queries the database returning only medication names
+        nameList = [post["name"] for post in self.col.find()]
+        return list(set(nameList))
+
+    def loadLogsMed(self, med):
+        # queries the database returning only the logs which math a certain name
+        logs = self.loadLogsFull()
+        logsMed = [post for post in logs if post["name"] == med]
+        return logsMed
+
+    def loadLastLogs(self, med):
+        # queries the database returning only the last logged log
+        logs = self.loadLogsMed(med=med)
+        selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
+        return selectLogList
 
 
 
-
-
-client = MongoClient("localhost", 27017)
-db = client.get_database("MEDS")
-col = db.get_collection("medLog")
-MedDatabase(client=client, db=db, col=col).loadLogs()
-
-
+m = MedDatabase().loadNameList()
+for x in m:
+    print(x)

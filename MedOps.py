@@ -1,19 +1,16 @@
+from MedDatabase import MedDatabase as md
+from Med import Med as m
 
+#Responsible for instatiating the Med Class as well as the MedDatabase and performing the necessary calculation so new logs can be mande
 
 class MedOps:
 
+    def __init__(self):
+        self.database = md()
+        self.med = m()
 
-    t0 = 0.0
-    t1 = 0.0
-    def __init__(self, timeZero, t1, s0, s1, intake):
-        self.t0 = timeZero,
-        self.t1 = t1,
-        self.s0 = s0,
-        self.s1 = s1
+    # deltas
 
-        self.intake = intake
-
-    # deltas    
     # -----------------------------------------------------------------------------
     def deltaMain(self):
 

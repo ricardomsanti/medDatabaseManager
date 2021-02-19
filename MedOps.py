@@ -1,52 +1,76 @@
 from MedDatabase import MedDatabase as md
 from Med import Med as m
+from datetime import datetime as dt
+from datetime import timedelta as td
 
 #Responsible for instatiating the Med Class as well as the MedDatabase and performing the necessary calculation so new logs can be mande
 
-class MedOps:
+class Med:
 
     def __init__(self):
+        self.name
+        self.dosePerDay
+        self.cpPerDay
+        self.cpPerBox
+        self.pricePerBox
+        self.cpIncome
+
         self.database = md()
         self.med = m()
 
-    # deltas
 
-    # -----------------------------------------------------------------------------
-    def deltaMain(self):
+    def boxPerDay(self):
+        return self.med.cpPerBox / self.med.cpPerDay
 
-        result = 0
+    def pricePerBox(self):
+        return self.boxPerDay * self.pricePerBox
 
-        # TIME OF THE LAST MEDICATION SHOP
-        if self.t0 == None:
-            self.t0 = ((self.s1 - self.s0) / self.intake) + self.t1
-            result = self.t0
-        # TIME OF THE NEXT MEDICATION SHOP
-        elif self.t1 is None:
-            result = self.t0 - (self.s1 - self.s0) / self.intake
+    def boxIncome(self):
+        return self.med.cpIncome / self.med.cpPerBox
 
-        # MEDICATION STORAGE AT A PAST DATE
-        elif self.s0 is None:
-            s0 = ((self.t1 - self.t0) / self.intake) + self.s1
-            result = s0
-        # MEDICATION STORAGE AT A FUTURE TIME
-        elif self.s1 is None:
-            s1 = self.s0 - ((self.t1 - self.t0) / self.intake)
-            result = s1
+    def logMed(self, newMed = "n"):
+        if newMed == "n":
+            log_med = {"name": self.med.name,
+                       "time": dt.now(),
+                       "intake": self.boxPerDay,
+                       "income": self.boxIncome,
+                       "storageToday":
+                           self.StorageToday(med=self.med.name, income=self.boxIncome()),
+                       "nexBuyDate": self.nextBuyDate(med=self.med.name,
+                                                      income=self.boxIncome())}
+        else:
+            log_med = {"name": self.med.name,
+                       "time": dt.now(),
+                       "intake": self.boxPerDay,
+                       "income": self.med.boxIncome,
+                       "storageToday": self.boxIncome,
+                       "nexBuyDate": self.nextBuyDate(med=self.med.name,
+                                                      income=self.boxIncome())}
 
-        return result
 
-        # isolated varables
 
-    # ---------------------------------------------------------------------
+        return log_med
 
-    def find_intake(self, size, time):
-        intake = lambda size, time: size / time
-        return intake(size, time)
+        # calculation methods
+        # ----------------------------------------------------------------------
 
-    def find_size(self, intake, time):
-        size = lambda intake, time: intake / time
-        return size
+#how to do calculation with date objects
 
-    def find_time(self, intake, size):
-        time = lambda intake, size: intake / size
-        return time
+    def StorageToday(self, med, income=None):
+        # based on the data from the last log, calculates the actual storage
+        lasLog = self.database.loadLastLogs(med=med)
+        t2 = dt.now()
+        t1 = lasLog["time"]
+        delta = t2 - t1
+        s2 = int(self.med.boxPerDay()) * int(delta.microseconds)
+        return s2 + income
+
+    def nextBuyDate(self, med=None, income=None):
+        # based on the data from the actual log, calculates the date of the next income
+        t1 = self.boxIncome + self.StorageToday(med=med, income=income) / self.boxPerDay
+        delta = td(days=t1)
+        buyDate = dt.now() + delta
+        return buyDate
+
+
+

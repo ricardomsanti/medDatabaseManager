@@ -74,7 +74,7 @@ class MainMeds:
                     self.MedOps.med.cpPerDay = float(varDict["cpPerDay"])
                     self.MedOps.med.cpPerBox = float(varDict["cpPerBox"])
                     self.MedOps.med.cpIncome = float(varDict["cpIncome"])
-                    self.MedOps.database.newLog(log=self.MedOps.med.logMed())
+                    self.MedOps.database.newLog(log=self.MedOps.logMed())
                 else:
                     break
             elif select == 3:

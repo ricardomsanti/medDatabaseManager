@@ -38,10 +38,10 @@ class MedDatabase:
         # queries the database returning only the last logged log
         logs = self.loadLogsMed(med=med)
         selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
-        return selectLogList
+        selectLogDict = {}
+        for x in selectLogList:
+            for y, z in x.items():
+                selectLogDict[y] = z
+        return selectLogDict
 
 
-
-m = MedDatabase().loadNameList()
-for x in m:
-    print(x)

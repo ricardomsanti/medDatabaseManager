@@ -31,12 +31,20 @@ class TestMed(unittest.TestCase):
                             "nexBuyDate": 20}
                 result = self.m.logMed(newMed="y")
                 self.assertCountEqual(result, newLoG)
-        
     def test_logMed(self):
+
                 """
                 Returns a dict made using previous information from a already present in the
                 database med
                 """
+                log = {"name": self.m.name,
+                          "time": dt.now(),
+                          "intake": 0.1,
+                          "income": 2,
+                          "storageToday": 2,
+                          "nexBuyDate": 20}
+                result = self.m.logMed(newMed="y")
+                self.assertCountEqual(result, log)
                 
         
         

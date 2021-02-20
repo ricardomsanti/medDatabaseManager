@@ -43,7 +43,7 @@ class Med:
                        "time": dt.now(),
                        "intake": self.boxPerDay,
                        "income": self.med.boxIncome,
-                       "storageToday": self.boxIncome,
+                       "storageToday": self.StorageToday(med=self.med.name),
                        "nexBuyDate": self.nextBuyDate(med=self.med.name,
                                                       income=self.boxIncome())}
 
@@ -56,14 +56,14 @@ class Med:
 
 #how to do calculation with date objects
 
-    def StorageToday(self, med, income=None):
+    def StorageToday(self):
         # based on the data from the last log, calculates the actual storage
-        lasLog = self.database.loadLastLogs(med=med)
+        lasLog = self.database.loadLastLogs(med=self.med)
         t2 = dt.now()
         t1 = lasLog["time"]
         delta = t2 - t1
         s2 = int(self.med.boxPerDay()) * int(delta.microseconds)
-        return s2 + income
+        return s2 + self.income
 
     def nextBuyDate(self, med=None, income=None):
         # based on the data from the actual log, calculates the date of the next income

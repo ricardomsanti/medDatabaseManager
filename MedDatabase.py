@@ -25,19 +25,31 @@ class MedDatabase:
 
     def loadNameList(self):
         # queries the database returning only medication names
-        nameList = [post["name"] for post in self.col.find()]
-        return list(set(nameList))
+        nameList = []
+        for x in self.loadLogsFull():
+            for z, y in x.items():
+                if z == "name" and y not in nameList:
+                    nameList.append(y)
+                else:
+                    continue
+        return nameList
 
+    ##Find out how to use a variable that has been declared in the upper class
+    ##
+    ##
     def loadLogsMed(self, med):
         # queries the database returning only the logs which math a certain name
         logs = self.loadLogsFull()
         logsMed = [post for post in logs if post["name"] == med]
         return logsMed
 
-    def loadLastLogs(self, med):
+    def loadLastLogs(self):
         # queries the database returning only the last logged log
         logs = self.loadLogsMed(med=med)
-        selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
+        if len(logs) > 1:
+            selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
+        else:
+            selectLogList = [post for post in logs]
         selectLogDict = {}
         for x in selectLogList:
             for y, z in x.items():

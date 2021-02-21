@@ -3,8 +3,8 @@ from Med import Med
 from MedDatabase import MedDatabase as md
 from datetime import datetime as dt
 class TestMed(unittest.TestCase):
-    m = Med(name = "testMed", cpPerDay = 2, cpPerBox=20, cpIncome=40, dosePerDay=5, 
-             database= md())
+    m = Med(name = "testMed", cpPerDay = 2, cpPerBox=20, cpIncome=40, dosePerDay=5,
+             database= md(), intake=None, income=None)
     
     def test_boxPerDay(self):
                 """
@@ -47,7 +47,26 @@ class TestMed(unittest.TestCase):
                 self.assertCountEqual(result, log)
                 
         
-        
-        
+
+    def test_storageToday(self):
+                m2 = Med(name="med3", intake=2, dosePerDay=15, cpPerDay=1, cpPerBox=30, cpIncome=60,
+                         database=md(), income=0)
+                """
+                Returns the current storage
+                """
+                result = m2.storageToday(med="med3")
+                self.assertEqual(result, 1.7)
+
+
+
+    def test_nextBuyDate(self):
+                m2 = Med(name="med3", intake=2, dosePerDay=15, cpPerDay=1, cpPerBox=30, cpIncome=60,
+                 database=md(), income=0)
+                """
+                Returns the time whem a a given medication will end
+                """
+                result = m2.nextBuyDate(med="med3")
+                self.assertEqual(result,dt(2021, 4, 14, 20, 41, 17, 622320))
+
 if __name__ == '__main__':
     unittest.main()

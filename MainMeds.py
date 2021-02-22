@@ -1,5 +1,4 @@
 import pandas as pd
-from instagram_explore import media
 from win10toast import ToastNotifier
 from Med import Med as med
 from MedDatabase import MedDatabase as md
@@ -10,8 +9,8 @@ from datetime import datetime as dt
 class MainMeds:
     def __init__(self):
         self.dash = "==============================================================================================================================="
-        self.m = med(name=None, dosePerDay=None, cpPerDay=None, cpPerBox=None, cpIncome=None, database=None,
-                     intake=None, income=None)
+        self.m = med(name=None, dosePerDay=None, cpPerDay=None, cpPerBox=None, cpIncome=None, database=None)
+
         self.nameList = self.m.database.loadNameList()
         self.lastLog = self.m.database.loadLastLogs(med=None)
         self.t = ToastNotifier()
@@ -104,10 +103,12 @@ class MainMeds:
         for name in nameList:
             lastLog = self.m.database.loadLastLogs(med=name)
             self.m.name = lastLog.get("name")
-            self.m.intake = lastLog.get("intake")
-            self.m.income = 0
+            self.m.dosePerDay = lastLog.get("dosePerDay")
+            self.m.cpPerDay = lastLog.get("cpPerDay")
+            self.m.cpPerBox = lastLog.get("cpPerBox")
+            self.m.cpIncome = lastLog.get("cpIncome")
             buyDate = self.m.nextBuyDate()
-            self.m.database.newLog(log=self.m.logMed(newMed="n"))
+            self.m.database.newLog(log=self.m.logMed())
             dateControl.update({self.m.name: buyDate})
 
         for x, y in dateControl.items():

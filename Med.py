@@ -8,59 +8,38 @@ class Med:
 
     def __init__(self, name, dosePerDay, 
                  cpPerDay, cpPerBox, 
-                 cpIncome, database, intake, income):
+                 cpIncome, database):
         self.name = name
         self.dosePerDay = dosePerDay
         self.cpPerDay = cpPerDay
         self.cpPerBox = cpPerBox
         self.cpIncome = cpIncome
         self.database = md()
-        self.intake = intake
-        self.income = income
+
+
 
 
 
     def boxPerDay(self):
-        cpPerDay = self.cpPerDay
-        cpPerBox = self.cpPerBox
-        if self.cpPerDay or self.cpPerBox is None:
-            lastLog = self.database.loadLastLogs()
-            boxPerDay = lastLog.get("intake")
-        else:
-            boxPerDay = float(cpPerDay/cpPerBox)
+        boxPerDay = float(self.cpPerDay/self.cpPerBox)
         return boxPerDay
 
     def boxIncome(self):
-        cpIncome = self.cpIncome
-        cpPerBox = self.cpPerBox
-        if self.cpIncome in None or self.cpPerBox is None:
-            lastLog = self.database.loadLastLogs(med=self.name)
-            boxIncome = lastLog.get("income")
-        else:
-            result = float(self.cpIncome / self.cpPerBox)
-        return boxIncome
+        result = float(self.cpIncome / self.cpPerBox)
+        return result
 
-    def logMed(self, newMed="n"):
-        if newMed != "n":
-            log_med = {"name": self.name,
-                       "time": dt.now(),
-                       "intake": self.boxPerDay(),
-                       "income": self.boxIncome(),
-                       "lastStorage" : self.lastStorage(),
-                       "storageToday": self.boxIncome(),
-                       "nextBuyDate": self.boxIncome()/self.boxIncome()}
-        else:
-            log_med = {"name": self.name,
-                       "time": dt.now(),
-                       "intake": self.intake,
-                       "income": self.income,
-                       "lastStorage" : self.lastStorage(),
-                       "storageToday": self.storageToday(),
-                       "nextBuyDate": self.nextBuyDate(med=self.name,
-                                                      income=self.boxIncome())}
-
-
-
+    def logMed(self):
+        log_med = {"name": self.name,
+                   "time": dt.now(),
+                   "dosePerDay": self.dosePerDay,
+                   "cpPerDay": self.cpPerDay,
+                   "cpPerBox": self.cpPerBox,
+                   "cpIncome":self.cpIncome,
+                   "intake": self.boxPerDay(),
+                   "boxIncome": self.boxIncome(),
+                   "lastStorage" : self.lastStorage(),
+                   "storageToday": self.storageToday(),
+                   "nextBuyDate": self.nextBuyDate()}
         return log_med
 
         # calculation methods
@@ -69,21 +48,18 @@ class Med:
 #how to do calculation with date objects
     def lastStorage(self):
         lastLog = self.database.loadLastLogs(med=self.name)
-        if lastLog is not None:
-            lastStorage = 0
-        else:
-            lastStorage = lastLog.get("lastStorage")
-
+        lastStorage = lastLog.get("lastStorage")
         return lastStorage
 
     def storageToday(self):
         # based on the data from the last log, calculates the actual storage
         storage = 0
         lastLog = self.database.loadLastLogs(med=self.name)
-        t1 = lastLog.get("time")
+        srtTime = lastLog.get("time")
+        t1 = dt.strptime(srtTime,"%Y %m %d %H %M %S %f")
         t2 = dt.now()
         delta = t2 - t1
-        s2 = (self.boxPerDay() * int(delta.days)) + self.income
+        s2 = (self.boxPerDay() * int(delta.days)) + self.boxIncome
         storage = self.lastStorage() - s2
         return storage
 

@@ -35,17 +35,13 @@ class MedDatabase:
         return nameList
 
     ##Find out how to use a variable that has been declared in the upper class
-    ##
-    ##
-    def loadLogsMed(self, med):
-        # queries the database returning only the logs which math a certain name
+    ##Research in the python folders
+    ##def loadLogsMed(self, med):
+
+    def loadLastLogs(self, med):
         logs = self.loadLogsFull()
         logsMed = [post for post in logs if post["name"] == med]
-        return logsMed
-
-    def loadLastLogs(self):
         # queries the database returning only the last logged log
-        logs = self.loadLogsMed(med=med)
         if len(logs) > 1:
             selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
         else:

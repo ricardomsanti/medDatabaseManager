@@ -112,11 +112,13 @@ class MainMeds:
             dateControl.update({self.m.name: buyDate})
 
         for x, y in dateControl.items():
-            delta = td(days=y)
+            nextBuyDate = y
             today = dt.now()
-            if today + delta >= 7:
+            delta = nextBuyDate - today
+
+            if delta.days < 8:
                 self.t.show_toast(title="--Medication shopping alert---",
-                                  msg="{} storage end in less than a week}".format(x),
+                                  msg="{} storage end in less than a week".format(x),
                                   threaded=True,
                                   duration=5)
             else:

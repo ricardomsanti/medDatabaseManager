@@ -30,7 +30,7 @@ class Med:
 
     def logMed(self):
         log_med = {"name": self.name,
-                   "time": dt.now(),
+                   "time": dt.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                    "dosePerDay": self.dosePerDay,
                    "cpPerDay": self.cpPerDay,
                    "cpPerBox": self.cpPerBox,
@@ -56,10 +56,10 @@ class Med:
         storage = 0
         lastLog = self.database.loadLastLogs(med=self.name)
         srtTime = lastLog.get("time")
-        t1 = dt.strptime(srtTime,"%Y %m %d %H %M %S %f")
+        t1 = dt.strptime(str(srtTime),"%Y-%m-%dT%H:%M:%S.%fZ")
         t2 = dt.now()
         delta = t2 - t1
-        s2 = (self.boxPerDay() * int(delta.days)) + self.boxIncome
+        s2 = (self.boxPerDay() * int(delta.days)) + self.boxIncome()
         storage = self.lastStorage() - s2
         return storage
 

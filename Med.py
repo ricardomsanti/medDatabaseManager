@@ -51,7 +51,7 @@ class Med:
         lastStorage = lastLog.get("lastStorage")
         return lastStorage
 
-    def storageToday(self):
+    def storageToday( self):
         # based on the data from the last log, calculates the actual storage
         storage = 0
         lastLog = self.database.loadLastLogs(med=self.name)

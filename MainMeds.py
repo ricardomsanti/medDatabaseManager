@@ -10,9 +10,7 @@ class MainMeds:
     def __init__(self):
         self.dash = "==============================================================================================================================="
         self.m = med(name=None, dosePerDay=None, cpPerDay=None, cpPerBox=None, cpIncome=None, database=None)
-
         self.nameList = self.m.database.loadNameList()
-        self.lastLog = self.m.database.loadLastLogs(med=None)
         self.t = ToastNotifier()
 
     def start(self):
@@ -21,35 +19,14 @@ class MainMeds:
         print("MainMeds started")
         print()
         print(self.dash)
-        OpList = ["Data update", "New data", "Data view"]
-        menuSeries = pd.Series(OpList, index={1, 2, 3})
+        OpList = ["New data", "Data view"]
+        menuSeries = pd.Series(OpList, index={1, 2})
         print()
         print(menuSeries.to_string())
         print()
         select = int(input("Please choose an option from the menu \n"))
         return select
 
-    def update(self):
-        nameList = self.nameList
-        nameSeries = pd.Series(nameList)
-        print(nameSeries.to_string())
-        medName = input("Please choose a medication to update from the list \n")
-        print(self.dash)
-        print()
-        self.lastLog(med=medName)
-        print("Last log data retrieved successflly. \n Please type in a new value in case of update, \n"
-              "or just hit enter for the next item \n")
-        print(self.dash)
-        print()
-        newLog = {}
-        for x, y in self.lastLog.items():
-            value = input("Field: {}    Current value: {} \n".format(x, y))
-            if y == "":
-                newLog[str(x)] = {value}
-            else:
-                newLog[str(x)] = {y}
-        for x, y in newLog.items():
-            print(x, y)
 
     def newData(self):
         print("Please type the following data about the new medication \n")
@@ -62,37 +39,40 @@ class MainMeds:
         for x in varList:
             value = input("{}: \n".format(x))
             varDict.update({str(x): value})
-            self.m.name = varDict["name"]
-            self.m.dosePerDay = float(varDict["dosePerDay"])
-            self.m.cpPerDay = float(varDict["cpPerDay"])
-            self.m.cpPerBox = float(varDict["cpPerBox"])
-            self.m.cpIncome = float(varDict["cpIncome"])
-            self.m.database.newLog(log=self.m.logMed(newMed="y"))
+        self.m.name = varDict.get("name")
+        self.m.dosePerDay = float(varDict.get("dosePerDay"))
+        self.m.cpPerDay = float(varDict.get("cpPerDay"))
+        self.m.cpPerBox = float(varDict.get("cpPerBox"))
+        self.m.cpIncome = float(varDict.get("cpIncome"))
+        self.m.database.newLog(log=self.m.logMed())
 
     def dataView(self):
         fullLogs = self.m.database.loadLogsFull()
         fullDict = {}
+        nameList = []
         for x in fullLogs:
             for z, y in x.items():
                 fullDict[z] = y
-        df = pd.DataFrame(fullDict, columns=[
-            "id", "name", "time", "intake", 'income', "storageToday", "nextBuyDate"])
+                if z == "name" and y not in nameList:
+                    nameList.append(y)
+        df = pd.DataFrame(fullDict, index=range(len(nameList)), columns=["id","name","time","dosePerDay",
+                                           "cpPerDay" ,"cpPerBox" ,"cpIncome",
+                                           "intake" ,"boxIncome","lastStorage",
+                                             "storageToday","nextBuyDate"])
+
         print(df)
 
     def menuSelection(self):
         select = self.start()
         while select != "":
             if select == 1:
-                self.update()
-                break
-            elif select == 2:
                 self.newData()
                 break
-            elif select == 3:
+            elif select == 2:
+                self.dataView()
                 break
-
         if select == "":
-            print("See yout next time!")
+            print("See you next time!")
         else:
             self.menuSelection()
 
@@ -129,5 +109,5 @@ class MainMeds:
 
 
 mm = MainMeds()
-# mm.menuSelection()
 mm.mainUpdate()
+mm.menuSelection()

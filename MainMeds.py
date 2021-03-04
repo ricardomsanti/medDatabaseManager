@@ -13,7 +13,7 @@ class MainMeds:
         self.m = med(name=None, dosePerDay=None, cpPerDay=None, cpPerBox=None, cpIncome=None)
         self.nameList = self.m.database.loadNameList()
         self.t = ToastNotifier()
-        self.select = ""
+        self.select = 0
 
     def start(self):
         t = 0
@@ -56,26 +56,12 @@ class MainMeds:
                           columns=["id", "name","time","dosePerDay",
                                                       "cpPerDay", "cpPerBox", "cpIncome",
                                                   "intake", "boxIncome", "lastStorage",
-                                                  "storageToday", "nextBuyDate"])
+                                                  "storageToday", "nextBuyDate", "pricePerBox"])
         print(df)
 
-    #attentio nedded hereby
+    #attentio nedded hereby3
     def priceCalculator(self):
-        dayNum = input("Time delta in days: \n")
-        nameList = self.m.database.loadNameList()
-        s = pd.Series(nameList)
-        print(s.to_string())
-        selectName = input("Please chose a name from the list \n")
-        priceDict = {}
-        lastLog = self.m.database.loadLastLogs(med=selectName)
-        medication = self.m.database.loadLastLogs(med=selectName).get("name")
-        boxPerDay = self.m.database.loadLastLogs(med=selectName).get("intake")
-        pricePerBox = self.m.database.loadLastLogs(med=selectName).get("pricePerBox")
-        print(dayNum)
-        print(pricePerBox)
-        print(boxPerDay)
-        pc = float(dayNum) * pricePerBox * boxPerDay
-        print("Medication:{}.....Total estimated value: R$ {}".format(selectName,pc))
+        self.m.priceOverTime()
 
 
     def menuSelection(self):
@@ -126,7 +112,7 @@ class MainMeds:
 
 mm = MainMeds()
 
-menu = 0
+menu = mm.menuSelection()
 while menu <= 4:
     menu = mm.menuSelection()
 print("See you next time")

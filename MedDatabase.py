@@ -40,16 +40,9 @@ class MedDatabase:
 
     def loadLastLogs(self, med):
         logs = self.loadLogsFull()
-        logsMed = [post for post in logs if post["name"] == med]
+        logMed = [post for post in logs if post["name"] == med]
         # queries the database returning only the last logged log
-        if len(logs) > 1:
-            selectLogList = [post for post in logs[(len(logs) - int(1)): len(logs)]]
-        else:
-            selectLogList = [post for post in logs]
-        selectLogDict = {}
-        for x in selectLogList:
-            for y, z in x.items():
-                selectLogDict[y] = z
-        return selectLogDict
+        lastLog = logMed[int(len(logMed)-1)]
+        return lastLog
 
 

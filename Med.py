@@ -1,7 +1,8 @@
 from MedDatabase import MedDatabase as md
 from datetime import datetime as dt
 from datetime import timedelta as td
-
+import pandas as pd
+import math
 #Responsible for instatiating the Med Class as well as the MedDatabase and performing the necessary calculation so new logs can be mande
 
 class Med:
@@ -65,13 +66,15 @@ class Med:
     def lastStorage(self):
         lastLog = self.database.loadLastLogs(med=self.name)
         lastStorage = lastLog.get("lastStorage")
+        if lastStorage == 0:
+            lastStorage = lastLog.get("storageToday")
         return lastStorage
 
+    #dedug function
     def storageToday(self):
         # based on the data from the last log, calculates the actual storage
         storage = 0
         lastLog = self.database.loadLastLogs(med=self.name)
-        srtTime = lastLog.get("time")
         srtTime = lastLog.get("time")
         t1 = dt.strptime(str(srtTime),"%Y-%m-%dT%H:%M:%S.%fZ")
         t2 = dt.now()
@@ -86,6 +89,27 @@ class Med:
         delta = td(days=t1)
         buyDate = dt.now() + delta
         return buyDate
+
+    def priceOverTime(self):
+        name = ""
+        total = ""
+
+        dayNum = 30
+
+        nameList = self.database.loadNameList()
+
+        s = pd.Series(nameList)
+        print(s.to_string())
+        selectName = input("Please chose a name from the list \n")
+
+        lastLog = self.database.loadLastLogs(med=selectName)
+        name = lastLog.get("name")
+        boxPerDay = lastLog.get("intake")
+        total = math.ceil(float(dayNum) * boxPerDay)
+        pricePerBox = lastLog.get("pricePerBox")
+        pc = total * pricePerBox
+        print("Medication:{} \n  Time: 30 days \n Total estimated value: R$ {}".format(selectName,pc))
+
 
 
 
